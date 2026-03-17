@@ -103,6 +103,8 @@ const navItems: NavItem[] = [
   },
 ];
 
+import { useSession } from 'next-auth/react';
+
 function NavLink({ item, depth = 0 }: { item: NavItem; depth?: number }) {
   const pathname = usePathname();
   const [expanded, setExpanded] = useState(() => {
@@ -164,6 +166,9 @@ function NavLink({ item, depth = 0 }: { item: NavItem; depth?: number }) {
 }
 
 export function Sidebar() {
+  const { data: session } = useSession();
+  const isAdmin = (session?.user as any)?.role === 'admin';
+
   return (
     <aside className="fixed left-0 top-0 h-full w-60 bg-card border-r border-border flex flex-col z-30">
       {/* Logo */}
@@ -182,6 +187,27 @@ export function Sidebar() {
         {navItems.map((item) => (
           <NavLink key={item.label} item={item} />
         ))}
+
+        {isAdmin && (
+           <div className="mt-8 pt-4 border-t border-border">
+              <span className="px-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-50 mb-2 block">Administration</span>
+              <NavLink item={{
+                label: 'Admin Overview',
+                href: '/admin',
+                icon: <Settings className="h-4 w-4" />
+              }} />
+              <NavLink item={{
+                label: 'Manage Blogs',
+                href: '/admin/blogs',
+                icon: <FileText className="h-4 w-4" />
+              }} />
+              <NavLink item={{
+                label: 'Manage Courses',
+                href: '/admin/courses',
+                icon: <BookOpen className="h-4 w-4" />
+              }} />
+           </div>
+        )}
       </nav>
 
       {/* Footer */}

@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
-import { z } from 'zod';
 import { dbConnect } from '@/lib/db/connect';
 import { User } from '@/lib/db/models/User';
+import bcrypt from 'bcryptjs';
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -35,10 +35,13 @@ export async function POST(req: NextRequest) {
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
+    const userCount = await User.countDocuments();
+
     await User.create({
       email,
       username,
       passwordHash,
+      role: userCount === 0 ? 'admin' : 'user',
       profile: { displayName: username },
     });
 
